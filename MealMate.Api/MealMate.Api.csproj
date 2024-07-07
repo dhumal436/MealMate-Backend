@@ -12,8 +12,4 @@
     <ProjectReference Include="..\MealMate.Infrastructure\MealMate.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
 </Project>

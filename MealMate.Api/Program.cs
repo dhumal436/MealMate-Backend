@@ -1,5 +1,10 @@
+using MealMate.Application;
+using MealMate.Infrastructure;
+
 var builder = WebApplication.CreateBuilder(args);
 {
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure();
     builder.Services.AddControllers();
 }
 
