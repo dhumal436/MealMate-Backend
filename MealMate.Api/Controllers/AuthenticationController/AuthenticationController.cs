@@ -24,10 +24,10 @@ public class AuthenticationController : ControllerBase
             registerRequest.email,
             registerRequest.password);
         return Ok(new AuthenticationResponse(
-            authResult.id,
-            authResult.firstName,
-            authResult.lastName,
-            authResult.email,
+            authResult.user.id,
+            authResult.user.FirstName,
+            authResult.user.LastName,
+            authResult.user.Email,
             authResult.token)
             );
     }
@@ -39,10 +39,10 @@ public class AuthenticationController : ControllerBase
                     loginRequest.email,
                     loginRequest.password);
         return Ok(new AuthenticationResponse(
-            authResult.id,
-            authResult.firstName,
-            authResult.lastName,
-            authResult.email,
+            authResult.user.id,
+            authResult.user.FirstName,
+            authResult.user.LastName,
+            authResult.user.Email,
             authResult.token)
             );
     }

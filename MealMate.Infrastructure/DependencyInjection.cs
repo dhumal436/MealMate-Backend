@@ -4,6 +4,8 @@ using MealMate.Infrastructure.Authentication;
 using Microsoft.Extensions.DependencyInjection;
 using MealMate.Infrastructure.Services;
 using Microsoft.Extensions.Configuration;
+using MealMate.Application.Interface.Persistence;
+using MealMate.Infrastructure.Persistence;
 namespace MealMate.Infrastructure;
 
 public static class DependencyInjection
@@ -12,8 +14,9 @@ public static class DependencyInjection
     {
         //Inject Dependency here
         services.Configure<JWTSettings>(configuration.GetSection(JWTSettings.SectionName));
-        services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
-        services.AddScoped<IDateTimeProvider, DateTimeProvider>();
+        services.AddSingleton<IJwtTokenGenerator, JwtTokenGenerator>();
+        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddScoped<IUserRepository, UserRepository>();
         return services;
     }
 }

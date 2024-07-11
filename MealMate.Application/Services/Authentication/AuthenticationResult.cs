@@ -1,3 +1,5 @@
-﻿namespace MealMate.Application.Services.Authentication;
+﻿using MealMate.Domain.Entities;
 
-public record class AuthenticationResult(Guid id,string firstName, string lastName, string email, string token);
+namespace MealMate.Application.Services.Authentication;
+
+public record class AuthenticationResult(User user, string token);
