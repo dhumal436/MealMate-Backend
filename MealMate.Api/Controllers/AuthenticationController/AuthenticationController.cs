@@ -1,4 +1,6 @@
-﻿using MealMate.Application.Services.Authentication;
+﻿using FluentResults;
+using MealMate.Application.Common.Error;
+using MealMate.Application.Services.Authentication;
 using MealMate.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,18 +20,16 @@ public class AuthenticationController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterRequest registerRequest)
     {
-        var authResult = _authenticationServices.Register(
+        Result<AuthenticationResult> registrationResult = _authenticationServices.Register(
             registerRequest.firstName,
             registerRequest.lastName,
             registerRequest.email,
             registerRequest.password);
-        return Ok(new AuthenticationResponse(
-            authResult.user.id,
-            authResult.user.FirstName,
-            authResult.user.LastName,
-            authResult.user.Email,
-            authResult.token)
-            );
+            if(registrationResult.IsSuccess) return MapAuthenticationResult(registrationResult.Value);
+            var firstError = registrationResult.Errors[0] is DuplicateEmailError;
+            if(firstError is DuplicateEmailError) return Problem(statusCode:400, detail: "error");
+
+            return Problem();
     }
 
     [HttpPost("login")]
@@ -38,12 +38,17 @@ public class AuthenticationController : ControllerBase
         var authResult = _authenticationServices.Login(
                     loginRequest.email,
                     loginRequest.password);
+        return  MapAuthenticationResult(authResult.Value); 
+    }
+
+    private OkObjectResult MapAuthenticationResult(AuthenticationResult authResult)
+    {
         return Ok(new AuthenticationResponse(
-            authResult.user.id,
-            authResult.user.FirstName,
-            authResult.user.LastName,
-            authResult.user.Email,
-            authResult.token)
-            );
+                    authResult.user.id,
+                    authResult.user.FirstName,
+                    authResult.user.LastName,
+                    authResult.user.Email,
+                    authResult.token)
+                    );
     }
 }

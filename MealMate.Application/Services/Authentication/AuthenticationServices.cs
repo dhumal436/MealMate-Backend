@@ -1,4 +1,6 @@
 ﻿using System.Net;
+using FluentResults;
+using MealMate.Application.Common.Error;
 using MealMate.Application.Common.Interface.Authentication;
 using MealMate.Application.Interface.Persistence;
 using MealMate.Application.Services.Authentication;
@@ -18,7 +20,7 @@ public class AuthenticationServices : IAuthenticationServices
         _userRepository = userRepository;
     }
 
-    public AuthenticationResult Login(string email, string password)
+    public Result<AuthenticationResult> Login(string email, string password)
     {
         if(_userRepository.GetUserByEmail(email) is not User user)
         {
@@ -32,11 +34,11 @@ public class AuthenticationServices : IAuthenticationServices
         return new AuthenticationResult(user, token);
     }
 
-    public AuthenticationResult Register(string firstName, string lastName, string email, string password)
+    public Result<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
     {
         if(_userRepository.GetUserByEmail(email) is not null)
         {
-            throw new Exception("User already exist!");
+            return Result.Fail<AuthenticationResult>(new DuplicateEmailError());
         }
         var user = new User{
            FirstName = firstName,
