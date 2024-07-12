@@ -1,3 +1,4 @@
+using MealMate.Api.Middleware;
 using MealMate.Application;
 using MealMate.Infrastructure;
 
@@ -10,6 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 var app = builder.Build();
 {
+    // app.UseMiddleware<ErrorHandlingMiddleware>();
+    app.UseExceptionHandler("/error");
     app.UseHttpsRedirection();
     app.MapControllers();
     app.Run();
