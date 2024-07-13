@@ -26,8 +26,8 @@ public class AuthenticationController : ControllerBase
             registerRequest.email,
             registerRequest.password);
             if(registrationResult.IsSuccess) return MapAuthenticationResult(registrationResult.Value);
-            var firstError = registrationResult.Errors[0] is DuplicateEmailError;
-            if(firstError is DuplicateEmailError) return Problem(statusCode:400, detail: "error");
+            var firstError = registrationResult.Errors.First();
+            if(firstError is DuplicateEmailError) return Problem(statusCode:StatusCodes.Status409Conflict, detail:firstError.Message);
 
             return Problem();
     }
