@@ -1,14 +1,15 @@
-﻿using FluentResults;
+﻿using ErrorOr;
+using FluentResults;
 using MealMate.Application.Common.Error;
 using MealMate.Application.Services.Authentication;
 using MealMate.Contracts.Authentication;
+using MealMate.Domain.Common.Errors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MealMate.Api.Controller;
 
-[ApiController]
 [Route("auth")]
-public class AuthenticationController : ControllerBase
+public class AuthenticationController : ApiController
 {
     private IAuthenticationServices _authenticationServices;
 
@@ -20,16 +21,18 @@ public class AuthenticationController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterRequest registerRequest)
     {
-        Result<AuthenticationResult> registrationResult = _authenticationServices.Register(
+        ErrorOr<AuthenticationResult> registrationResult = _authenticationServices.Register(
             registerRequest.firstName,
             registerRequest.lastName,
             registerRequest.email,
-            registerRequest.password);
-            if(registrationResult.IsSuccess) return MapAuthenticationResult(registrationResult.Value);
-            var firstError = registrationResult.Errors.First();
-            if(firstError is DuplicateEmailError) return Problem(statusCode:StatusCodes.Status409Conflict, detail:firstError.Message);
+            registerRequest.password
+            );
 
-            return Problem();
+             return registrationResult.MatchFirst(
+                registrationResult => MapAuthenticationResult(registrationResult), 
+                firstError => Problem(statusCode:StatusCodes.Status409Conflict, title: firstError.Description)
+                );
+
     }
 
     [HttpPost("login")]
@@ -38,7 +41,19 @@ public class AuthenticationController : ControllerBase
         var authResult = _authenticationServices.Login(
                     loginRequest.email,
                     loginRequest.password);
-        return  MapAuthenticationResult(authResult.Value); 
+
+                if(authResult.IsError && authResult.FirstError == Errors.Authentication.InvalidCredentials)
+                {
+                    return Problem(
+                        statusCode:StatusCodes.Status401Unauthorized,
+                        title: authResult.FirstError.Description
+                    );
+                }
+
+                    return authResult.Match(
+                        authResult => MapAuthenticationResult(authResult),
+                        errors => Problem(errors)
+                    );
     }
 
     private OkObjectResult MapAuthenticationResult(AuthenticationResult authResult)
