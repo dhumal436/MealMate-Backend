@@ -2,6 +2,8 @@
 using FluentResults;
 using MealMate.Application.Common.Error;
 using MealMate.Application.Services.Authentication;
+using MealMate.Application.Services.Authentication.Command;
+using MealMate.Application.Services.Authentication.Query;
 using MealMate.Contracts.Authentication;
 using MealMate.Domain.Common.Errors;
 using Microsoft.AspNetCore.Mvc;
@@ -11,17 +13,19 @@ namespace MealMate.Api.Controller;
 [Route("auth")]
 public class AuthenticationController : ApiController
 {
-    private IAuthenticationServices _authenticationServices;
+    private IAuthenticationCommandServices _authenticationCommandServices;
+    private IAuthenticationQueryServices _authenticationQueryServices;
 
-    public AuthenticationController(IAuthenticationServices authenticationServices)
+    public AuthenticationController(IAuthenticationCommandServices authenticationCommandServices, IAuthenticationQueryServices authenticationQueryServices)
     {
-        _authenticationServices = authenticationServices;
+        _authenticationCommandServices = authenticationCommandServices;
+        _authenticationQueryServices=authenticationQueryServices;
     }
 
     [HttpPost("register")]
     public IActionResult Register(RegisterRequest registerRequest)
     {
-        ErrorOr<AuthenticationResult> registrationResult = _authenticationServices.Register(
+        ErrorOr<AuthenticationResult> registrationResult = _authenticationCommandServices.Register(
             registerRequest.firstName,
             registerRequest.lastName,
             registerRequest.email,
@@ -38,7 +42,7 @@ public class AuthenticationController : ApiController
     [HttpPost("login")]
     public IActionResult Login(LoginRequest loginRequest)
     {
-        var authResult = _authenticationServices.Login(
+        var authResult = _authenticationQueryServices.Login(
                     loginRequest.email,
                     loginRequest.password);
 

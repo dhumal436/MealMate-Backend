@@ -13,5 +13,9 @@
     <PackageReference Include="fluentResults" Version="3.16.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.1" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Services\Command\" />
+    <Folder Include="Services\Common\" />
+  </ItemGroup>
 
 </Project>
